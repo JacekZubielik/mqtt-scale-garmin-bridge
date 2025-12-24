@@ -1,0 +1,3 @@
+garminconnect>=0.2.19
+paho-mqtt>=2.0.0
+pyyaml>=6.0
