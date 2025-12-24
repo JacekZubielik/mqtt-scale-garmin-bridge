@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mqtt-scale-garmin-bridge"
-version = "0.1.0"
+version = "0.0.1"
 description = "Bridge between Xiaomi Mi Body Composition Scale (via MQTT/OpenMQTTGateway) and Garmin Connect"
 readme = "README.md"
 license = {text = "MIT"}
@@ -68,13 +68,14 @@ ignore = ["E501"]
 # =============================================================================
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"
+version = "0.0.1"
 tag_format = "v$version"
 version_files = [
     "pyproject.toml:version"
 ]
 changelog_file = "CHANGELOG.md"
-changelog_start_rev = "v0.1.0"
+changelog_start_rev = "v0.0.1"
+update_changelog_on_bump = true
 style = [
     ["qmark", "fg:#ff9d00 bold"],
     ["question", "bold"],
