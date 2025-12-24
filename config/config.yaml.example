@@ -1,0 +1,56 @@
+# MqttScaleGarminBridge Configuration
+# Copy this file to config.yaml and edit with your settings
+
+mqtt:
+  host: localhost              # MQTT broker address
+  port: 1883
+  # username: mqtt_user        # Optional
+  # password: mqtt_pass        # Optional
+
+  # Topic to subscribe - use wildcard "+" for any MAC
+  # Check your OpenMQTTGateway topic with: mosquitto_sub -h localhost -t "home/#" -v
+  topic: "home/OMG_ESP32_BLE/BTtoMQTT/+"
+
+filter:
+  cooldown_seconds: 30         # Min. time between measurements
+  require_impedance: true      # Require impedance (for body composition)
+
+users:
+  - sex: male
+    height: 176                # cm
+    birthdate: "01-01-1980"    # DD-MM-YYYY
+    email: "user@email.com"    # Garmin Connect email
+    max_weight: 85             # kg - upper weight range
+    min_weight: 60             # kg - lower weight range
+
+  # Add more users if needed (weight ranges must not overlap)
+  # - sex: female
+  #   height: 165
+  #   birthdate: "15-08-1990"
+  #   email: "user2@email.com"
+  #   max_weight: 70
+  #   min_weight: 50
+
+garmin:
+  tokens_path: "./data/tokens"   # Directory with OAuth tokens
+
+backup:
+  enabled: true
+  path: "./data/backup"
+
+logging:
+  level: INFO                  # DEBUG, INFO, WARNING, ERROR
+  file: "./logs/bridge.log"    # Optional: log file path
+
+# OpenMQTTGateway auto-configuration
+omg_bridge:
+  auto_configure: true
+  config_topic: "home/OMG_ESP32_BLE/commands/MQTTtoBT/config"
+  status_topic: "home/OMG_ESP32_BLE/BTtoMQTT"
+  settings:
+    adaptivescan: false
+    interval: 30000            # Scan interval in ms
+    scanduration: 5000         # Scan duration in ms
+    bleconnect: true           # Enable BLE connections
+    intervalcnct: 60000        # Connection interval in ms
+    save: true                 # Save to flash

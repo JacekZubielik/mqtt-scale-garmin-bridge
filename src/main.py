@@ -79,9 +79,7 @@ class MqttScaleGarminBridge:
     def _setup_logging(self):
         log_config = self.config.get("logging", {})
         level = getattr(logging, log_config.get("level", "INFO").upper())
-        log_format = log_config.get(
-            "format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        log_format = log_config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
         # Create logs directory if needed
         log_file = log_config.get("file")
@@ -139,9 +137,7 @@ class MqttScaleGarminBridge:
         # Upload to Garmin (only if enabled)
         if self.garmin:
             if self.garmin.login(user.email):
-                if self.garmin.upload_body_composition(
-                    measurement.timestamp, measurement.body_metrics
-                ):
+                if self.garmin.upload_body_composition(measurement.timestamp, measurement.body_metrics):
                     logger.info(f"Successfully uploaded to Garmin for {user.email}")
                 else:
                     logger.error(f"Failed to upload to Garmin for {user.email}")
@@ -165,10 +161,13 @@ class MqttScaleGarminBridge:
         omg_config = self.config.get("omg_bridge", {})
         if omg_config.get("auto_configure", False):
             try:
-                self.bridge_configurator.configure(
+                success = self.bridge_configurator.ensure_configured(
                     config_topic=omg_config["config_topic"],
+                    status_topic=omg_config["status_topic"],
                     settings=omg_config["settings"],
                 )
+                if not success:
+                    logger.warning("OMG bridge configuration failed - continuing anyway...")
             except Exception as e:
                 logger.error(f"Failed to configure bridge: {e}")
                 logger.warning("Continuing without bridge configuration...")
