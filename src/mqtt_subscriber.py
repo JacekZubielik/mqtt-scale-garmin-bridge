@@ -105,7 +105,9 @@ class MqttSubscriber:
 
             # Check if it's a person measurement (not object)
             if payload.get("weighing_mode") != "person":
-                logger.debug(f"Ignoring non-person measurement: {payload.get('weighing_mode')}")
+                logger.debug(
+                    f"Ignoring non-person measurement: {payload.get('weighing_mode')}"
+                )
                 return
 
             weight = payload.get("weight")
@@ -184,7 +186,7 @@ class MqttSubscriber:
         try:
             logger.info(f"Connecting to MQTT broker: {self.host}:{self.port}")
             self.client.connect(self.host, self.port, keepalive=60)
-            logger.info(f"✅ Connected to MQTT broker successfully")
+            logger.info("Connected to MQTT broker successfully")
             logger.info(f"Starting MQTT loop for {self.host}:{self.port}")
             self.client.loop_forever()
         except ConnectionRefusedError:

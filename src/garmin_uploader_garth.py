@@ -2,8 +2,6 @@
 
 import logging
 from datetime import datetime
-from pathlib import Path
-from typing import Optional
 
 import garth
 from garth.exc import GarthException
@@ -75,7 +73,9 @@ class GarminUploader:
             payload = {
                 "weight": int(metrics["weight"] * 1000),  # Convert kg to grams
                 "unitKey": "kg",
-                "timestampGMT": int(timestamp.timestamp() * 1000),  # Unix timestamp in ms
+                "timestampGMT": int(
+                    timestamp.timestamp() * 1000
+                ),  # Unix timestamp in ms
             }
 
             # Add body composition data if available
@@ -89,10 +89,14 @@ class GarminUploader:
                 payload["bodyWater"] = round(metrics["percent_hydration"], 1)
 
             if "bone_mass" in metrics:
-                payload["boneMass"] = int(metrics["bone_mass"] * 1000)  # Convert kg to grams
+                payload["boneMass"] = int(
+                    metrics["bone_mass"] * 1000
+                )  # Convert kg to grams
 
             if "muscle_mass" in metrics:
-                payload["muscleMass"] = int(metrics["muscle_mass"] * 1000)  # Convert kg to grams
+                payload["muscleMass"] = int(
+                    metrics["muscle_mass"] * 1000
+                )  # Convert kg to grams
 
             if "visceral_fat_rating" in metrics:
                 payload["visceralFat"] = int(metrics["visceral_fat_rating"])
@@ -101,11 +105,12 @@ class GarminUploader:
                 payload["metabolicAge"] = int(metrics["metabolic_age"])
 
             # Upload via garth connectapi
-            response = garth.connectapi("/weight-service/user-weight", method="POST", json=payload)
+            response = garth.connectapi(
+                "/weight-service/user-weight", method="POST", json=payload
+            )
 
             logger.info(
-                f"Uploaded to Garmin Connect: {metrics['weight']:.1f}kg, "
-                f"{metrics.get('percent_fat', 0):.1f}% fat"
+                f"Uploaded to Garmin Connect: {metrics['weight']:.1f}kg, {metrics.get('percent_fat', 0):.1f}% fat"
             )
             logger.debug(f"Garmin API response: {response}")
 

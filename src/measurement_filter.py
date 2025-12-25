@@ -16,7 +16,7 @@ class FilteredMeasurement:
 
     timestamp: datetime
     weight_kg: float
-    impedance: int
+    impedance: Optional[int]
     mac_address: str
 
 
@@ -51,7 +51,9 @@ class MeasurementFilter:
         """
         # Check if we have impedance (if required)
         if self.require_impedance and not measurement.has_impedance:
-            logger.debug(f"Skipping measurement without impedance: {measurement.weight_kg}kg")
+            logger.debug(
+                f"Skipping measurement without impedance: {measurement.weight_kg}kg"
+            )
             return None
 
         now = datetime.now()
@@ -61,8 +63,13 @@ class MeasurementFilter:
             elapsed = now - self.last_measurement
             if elapsed < self.cooldown:
                 # In cooldown period - check if it's the same measurement
-                if self.last_weight and abs(measurement.weight_kg - self.last_weight) < 0.1:
-                    logger.debug(f"Duplicate measurement filtered: {measurement.weight_kg}kg")
+                if (
+                    self.last_weight
+                    and abs(measurement.weight_kg - self.last_weight) < 0.1
+                ):
+                    logger.debug(
+                        f"Duplicate measurement filtered: {measurement.weight_kg}kg"
+                    )
                     return None
 
         # Accept measurement

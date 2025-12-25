@@ -85,7 +85,8 @@ class BridgeConfigurator:
             while not result["received"] and (time.time() - start_time) < timeout:
                 time.sleep(0.1)
 
-            return result["settings"]
+            settings: Optional[dict[str, Any]] = result["settings"]
+            return settings
 
         except Exception as e:
             logger.error(f"Failed to get current settings: {e}")
@@ -165,10 +166,14 @@ class BridgeConfigurator:
         # Step 1: Check current settings (unless force mode)
         if status_topic and not force:
             logger.info("Checking current OMG bridge settings...")
-            settings_ok, current = self.check_settings(status_topic, config_topic, settings)
+            settings_ok, current = self.check_settings(
+                status_topic, config_topic, settings
+            )
 
             if settings_ok:
-                logger.info("OMG bridge settings already correct - skipping configuration")
+                logger.info(
+                    "OMG bridge settings already correct - skipping configuration"
+                )
                 return True
 
             if current:
@@ -200,7 +205,9 @@ class BridgeConfigurator:
                 client.publish(config_topic, save_command)
                 time.sleep(2)
 
-            logger.info("Bridge configuration sent. Waiting for bridge to apply settings...")
+            logger.info(
+                "Bridge configuration sent. Waiting for bridge to apply settings..."
+            )
             time.sleep(5)
 
         except Exception as e:
@@ -213,7 +220,9 @@ class BridgeConfigurator:
         # Step 3: Verify settings (if requested and status_topic provided)
         if verify and status_topic:
             logger.info("Verifying OMG bridge settings...")
-            settings_ok, current = self.check_settings(status_topic, config_topic, settings, timeout=15)
+            settings_ok, current = self.check_settings(
+                status_topic, config_topic, settings, timeout=15
+            )
 
             if settings_ok:
                 logger.info("OMG bridge configuration verified successfully")

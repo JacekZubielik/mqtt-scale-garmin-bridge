@@ -174,7 +174,7 @@ class bodyScales:
             ]
 
         for scale in scales:
-            if self.height >= scale["min"][self.sex]:
+            if self.height >= scale["min"][self.sex]:  # type: ignore[index]
                 return scale[self.sex]
 
     # Get water percentage scale
@@ -229,12 +229,11 @@ class bodyScales:
                 },
             ]
 
-            for scale in scales:
-                if self.weight >= scale[self.sex]["min"]:
-                    return [
-                        scale[self.sex]["optimal"] - 1,
-                        scale[self.sex]["optimal"] + 1,
-                    ]
+            for scale_entry in scales:
+                sex_data = scale_entry[self.sex]
+                if self.weight >= sex_data["min"]:
+                    optimal = sex_data["optimal"]
+                    return [optimal - 1, optimal + 1]  # type: ignore[operator]
 
     # Get BMR scale
     def getBMRScale(self):

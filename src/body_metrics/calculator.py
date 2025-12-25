@@ -124,7 +124,9 @@ class bodyMetrics:
     # Get muscle mass
     def getMuscleMass(self):
         muscleMass = (
-            self.weight - ((self.getFatPercentage() * 0.01) * self.weight) - self.getBoneMass()
+            self.weight
+            - ((self.getFatPercentage() * 0.01) * self.weight)
+            - self.getBoneMass()
         )
 
         # Capping muscle mass
@@ -139,7 +141,9 @@ class bodyMetrics:
     def getVisceralFat(self):
         if self.sex == "female":
             if self.weight > (13 - (self.height * 0.5)) * -1:
-                subsubcalc = ((self.height * 1.45) + (self.height * 0.1158) * self.height) - 120
+                subsubcalc = (
+                    (self.height * 1.45) + (self.height * 0.1158) * self.height
+                ) - 120
                 subcalc = self.weight * 500 / subsubcalc
                 vfal = (subcalc - 6) + (self.age * 0.07)
             else:
@@ -151,7 +155,9 @@ class bodyMetrics:
                 )
         else:
             if self.height < self.weight * 1.6:
-                subcalc = ((self.height * 0.4) - (self.height * (self.height * 0.0826))) * -1
+                subcalc = (
+                    (self.height * 0.4) - (self.height * (self.height * 0.0826))
+                ) * -1
                 vfal = ((self.weight * 305) / (subcalc + 48)) - 2.9 + (self.age * 0.15)
             else:
                 subcalc = 0.765 + self.height * -0.0015
@@ -177,7 +183,9 @@ class bodyMetrics:
         elif orig and self.sex == "male":
             return (self.height - 80) * 0.7
         else:
-            return self.checkValueOverflow((22 * self.height) * self.height / 10000, 5.5, 198)
+            return self.checkValueOverflow(
+                (22 * self.height) * self.height / 10000, 5.5, 198
+            )
 
     # Get fat mass to ideal (guessing mi fit formula)
     def getFatMassToIdeal(self):
@@ -198,7 +206,9 @@ class bodyMetrics:
         else:
             proteinPercentage = 100 - (floor(self.getFatPercentage() * 100) / 100)
             proteinPercentage -= floor(self.getWaterPercentage() * 100) / 100
-            proteinPercentage -= floor((self.getBoneMass() / self.weight * 100) * 100) / 100
+            proteinPercentage -= (
+                floor((self.getBoneMass() / self.weight * 100) * 100) / 100
+            )
 
         return self.checkValueOverflow(proteinPercentage, 5, 32)
 

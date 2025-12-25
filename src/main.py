@@ -5,18 +5,23 @@ import logging
 import signal
 import sys
 from pathlib import Path
+from typing import Any, Optional, Type
 
 import yaml
 
 try:
-    from .backup import BackupManager
+    from .backup import BackupManager as BackupManagerClass
+
+    BackupManager: Optional[Type[BackupManagerClass]] = BackupManagerClass
 except ImportError:
     BackupManager = None
 
 from .bridge_configurator import BridgeConfigurator
 
 try:
-    from .garmin_uploader import GarminUploader
+    from .garmin_uploader import GarminUploader as GarminUploaderClass
+
+    GarminUploader: Optional[Type[GarminUploaderClass]] = GarminUploaderClass
 except ImportError:
     GarminUploader = None
 
@@ -54,16 +59,24 @@ class MqttScaleGarminBridge:
 
         # Initialize Garmin uploader only if enabled
         self.garmin = None
-        if self.config.get("garmin", {}).get("enabled", True) and GarminUploader:
-            self.garmin = GarminUploader(tokens_path=self.config["garmin"]["tokens_path"])
-        elif not GarminUploader:
+        if (
+            self.config.get("garmin", {}).get("enabled", True)
+            and GarminUploader is not None
+        ):
+            self.garmin = GarminUploader(
+                tokens_path=self.config["garmin"]["tokens_path"]
+            )
+        elif GarminUploader is None:
             logger.info("Garmin uploader not available (module not found)")
 
         # Initialize backup only if enabled
         self.backup = None
-        if self.config.get("backup", {}).get("enabled", False) and BackupManager:
+        if (
+            self.config.get("backup", {}).get("enabled", False)
+            and BackupManager is not None
+        ):
             self.backup = BackupManager(backup_path=self.config["backup"]["path"])
-        elif not BackupManager:
+        elif BackupManager is None:
             logger.info("Backup manager not available (module not found)")
 
         # Bridge configurator
@@ -72,14 +85,17 @@ class MqttScaleGarminBridge:
             port=self.config["mqtt"].get("port", 1883),
         )
 
-    def _load_config(self, path: str) -> dict:
+    def _load_config(self, path: str) -> dict[str, Any]:
         with open(path, "r") as f:
-            return yaml.safe_load(f)
+            config: dict[str, Any] = yaml.safe_load(f)
+            return config
 
     def _setup_logging(self):
         log_config = self.config.get("logging", {})
         level = getattr(logging, log_config.get("level", "INFO").upper())
-        log_format = log_config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        log_format = log_config.get(
+            "format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
         # Create logs directory if needed
         log_file = log_config.get("file")
@@ -90,7 +106,7 @@ class MqttScaleGarminBridge:
             if log_dir and not os.path.exists(log_dir):
                 os.makedirs(log_dir)
 
-        handlers = []
+        handlers: list[logging.Handler] = []
         handlers.append(logging.StreamHandler())  # Console logging
 
         # Add file handler if configured
@@ -114,7 +130,9 @@ class MqttScaleGarminBridge:
         # Find user
         user = self.users.find_user_by_weight(measurement.weight_kg)
         if not user:
-            logger.warning(f"Unknown user for weight {measurement.weight_kg}kg - skipping")
+            logger.warning(
+                f"Unknown user for weight {measurement.weight_kg}kg - skipping"
+            )
             return
 
         # Log detailed user and body composition summary
@@ -137,7 +155,9 @@ class MqttScaleGarminBridge:
         # Upload to Garmin (only if enabled)
         if self.garmin:
             if self.garmin.login(user.email):
-                if self.garmin.upload_body_composition(measurement.timestamp, measurement.body_metrics):
+                if self.garmin.upload_body_composition(
+                    measurement.timestamp, measurement.body_metrics
+                ):
                     logger.info(f"Successfully uploaded to Garmin for {user.email}")
                 else:
                     logger.error(f"Failed to upload to Garmin for {user.email}")
@@ -146,7 +166,9 @@ class MqttScaleGarminBridge:
 
         # Backup to CSV (only if enabled)
         if self.backup:
-            self.backup.save(user.email, measurement.timestamp, measurement.body_metrics)
+            self.backup.save(
+                user.email, measurement.timestamp, measurement.body_metrics
+            )
         else:
             logger.debug("CSV backup disabled")
 
@@ -154,7 +176,9 @@ class MqttScaleGarminBridge:
         """Run bridge."""
         topic = self.config["mqtt"]["topic"]
         logger.info("Starting MqttScaleGarminBridge")
-        logger.info(f"MQTT: {self.config['mqtt']['host']}:{self.config['mqtt'].get('port', 1883)}")
+        logger.info(
+            f"MQTT: {self.config['mqtt']['host']}:{self.config['mqtt'].get('port', 1883)}"
+        )
         logger.info(f"Topic: {topic}")
 
         # Auto-configure OMG bridge if enabled
@@ -167,7 +191,9 @@ class MqttScaleGarminBridge:
                     settings=omg_config["settings"],
                 )
                 if not success:
-                    logger.warning("OMG bridge configuration failed - continuing anyway...")
+                    logger.warning(
+                        "OMG bridge configuration failed - continuing anyway..."
+                    )
             except Exception as e:
                 logger.error(f"Failed to configure bridge: {e}")
                 logger.warning("Continuing without bridge configuration...")
