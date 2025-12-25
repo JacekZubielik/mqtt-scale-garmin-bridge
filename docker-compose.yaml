@@ -1,0 +1,15 @@
+services:
+  mqtt-scale-garmin-bridge:
+    image: ghcr.io/jacekzubielik/mqtt-scale-garmin-bridge:latest
+    container_name: mqtt-scale-garmin-bridge
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import src.main"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
