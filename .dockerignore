@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*.so
+.venv
+venv
+*.egg-info
+dist
+build
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# Data (mounted as volumes)
+data/
+logs/
+
+# Dev files
+*.md
+docs/
+tests/
+test_*.py
+.pre-commit-config.yaml
+.ruff_cache
+
+# Config example (real config mounted)
+config/config.yaml.example
