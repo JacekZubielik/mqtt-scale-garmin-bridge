@@ -18,7 +18,9 @@ config/config.yaml
 # Data with tokens and backups
 data/tokens/
 data/backup/
-temp
+temp/
+docs/
+tests/
 
 # IDE
 .idea/
